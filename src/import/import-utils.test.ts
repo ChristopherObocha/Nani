@@ -38,15 +38,15 @@ describe('parseTriviaCsv', () => {
 describe('validateImport', () => {
   const existing: Question[] = [{ id: 'existing', text: 'Who?', answer: 'Ada Lovelace', acceptedAnswers: [] }]
 
-  it('rejects normalized duplicates and empty answers while preserving order', () => {
+  it('allows existing answers for overwrite confirmation and rejects empty answers', () => {
     const result = validateImport([
       { key: 'a', kind: 'trivia', text: 'Q1', answer: '  ada   lovelace ', acceptedAnswers: [] },
       { key: 'b', kind: 'trivia', text: 'Q2', answer: 'Grace Hopper', acceptedAnswers: [] },
       { key: 'c', kind: 'trivia', text: 'Q3', answer: '', acceptedAnswers: [] },
     ], existing, 2)
-    expect(result.accepted.map(item => item.answer)).toEqual(['Grace Hopper'])
-    expect(result.rejected).toHaveLength(2)
-    expect(result.remaining).toBe(1)
+    expect(result.accepted.map(item => item.answer)).toEqual(['  ada   lovelace ', 'Grace Hopper'])
+    expect(result.rejected).toHaveLength(1)
+    expect(result.remaining).toBe(0)
   })
 
   it('rejects items beyond the category capacity', () => {
