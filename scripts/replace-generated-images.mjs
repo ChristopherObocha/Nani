@@ -35,10 +35,10 @@ for (const folder of folders) {
       row[filenameIndex]=filename; row[sourceIndex]=`https://en.wikipedia.org/wiki/${title(row[answerIndex])}`; resolved += 1
     } catch {
       if (existing) fs.rmSync(path.join(root, folder, existing), { force: true })
-      row[kindIndex]='unresolved'; row[filenameIndex]=''; row[sourceIndex]=`https://en.wikipedia.org/wiki/${title(row[answerIndex])}`; failed += 1
+      row[kindIndex]='trivia'; row[filenameIndex]=''; row[sourceIndex]=`https://en.wikipedia.org/wiki/${title(row[answerIndex])}`; failed += 1
     }
   }
-  const retained = rows.filter((row, index) => row[kindIndex] !== 'unresolved' && (folder === 'bible-characters' || folder === 'nba-logos' || row[kindIndex] === 'image'))
+  const retained = rows.filter(row => row[kindIndex] === 'image' || row[kindIndex] === 'trivia')
   fs.writeFileSync(csvFile, [headers,...retained].map(row=>row.map(csv).join(',')).join('\n')+'\n')
   console.log(`${folder}: ${resolved} real images, ${failed} reclassified trivia`)
 }
