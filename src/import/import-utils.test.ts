@@ -46,7 +46,7 @@ describe('validateImport', () => {
     ], existing, 2)
     expect(result.accepted.map(item => item.answer)).toEqual(['  ada   lovelace ', 'Grace Hopper'])
     expect(result.rejected).toHaveLength(1)
-    expect(result.remaining).toBe(0)
+    expect(result.remaining).toBe(1)
   })
 
   it('rejects items beyond the category capacity', () => {
@@ -56,6 +56,16 @@ describe('validateImport', () => {
     ], [], 1)
     expect(result.accepted).toHaveLength(1)
     expect(result.rejected[0].error).toMatch(/capacity|50|remaining/i)
+    expect(result.remaining).toBe(0)
+  })
+
+  it('allows a full-category import when every answer replaces an existing question', () => {
+    const existing = Array.from({ length: 2 }, (_, index) => ({ id: String(index), text: 'Old', answer: `Answer ${index + 1}`, acceptedAnswers: [] }))
+    const result = validateImport([
+      { key: 'a', kind: 'trivia', text: 'New 1', answer: 'Answer 1', acceptedAnswers: [] },
+      { key: 'b', kind: 'trivia', text: 'New 2', answer: 'Answer 2', acceptedAnswers: [] },
+    ], existing, 0)
+    expect(result.accepted).toHaveLength(2)
     expect(result.remaining).toBe(0)
   })
 })

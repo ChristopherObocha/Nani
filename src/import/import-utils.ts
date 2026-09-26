@@ -88,7 +88,7 @@ export function parseTriviaCsv(csv: string): ImportCandidate[] {
 }
 
 export function validateImport(candidates: ImportCandidate[], existing: Question[], capacity: number): ImportValidation {
-  void existing // Existing answers are handled by the overwrite confirmation in the review UI.
+  const existingAnswers = new Set(existing.map(question => normalizeComparison(question.answer)).filter(Boolean))
   const incomingAnswers = new Set<string>()
   const accepted: ImportCandidate[] = []
   const rejected: ImportCandidate[] = []
@@ -98,7 +98,8 @@ export function validateImport(candidates: ImportCandidate[], existing: Question
     let error = candidate.error
     if (!error && !normalized) error = 'Answer cannot be empty'
     if (!error && incomingAnswers.has(normalized)) error = 'Duplicate answer in this import'
-    if (!error && accepted.length >= Math.max(0, capacity)) error = 'Import exceeds remaining category capacity'
+    const newAnswerCount = accepted.filter(item => !existingAnswers.has(normalizeComparison(item.answer))).length
+    if (!error && !existingAnswers.has(normalized) && newAnswerCount >= Math.max(0, capacity)) error = 'Import exceeds remaining category capacity'
 
     if (error) rejected.push({ ...candidate, error })
     else {
@@ -107,5 +108,6 @@ export function validateImport(candidates: ImportCandidate[], existing: Question
     }
   }
 
-  return { accepted, rejected, remaining: Math.max(0, capacity - accepted.length) }
+  const newAnswerCount = accepted.filter(item => !existingAnswers.has(normalizeComparison(item.answer))).length
+  return { accepted, rejected, remaining: Math.max(0, capacity - newAnswerCount) }
 }
