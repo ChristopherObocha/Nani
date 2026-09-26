@@ -41,11 +41,21 @@ export function BulkImport({ category, onCommit }: BulkImportProps) {
     setBusy(true)
     setError('')
     try {
+      const existingByAnswer = new Map(category.questions.map(question => [question.answer.trim().toLocaleLowerCase(), question]))
+      const replacements = validation.accepted.filter(candidate => existingByAnswer.has(candidate.answer.trim().toLocaleLowerCase()))
+      const overwrite = replacements.length > 0
+        ? window.confirm(`${replacements.length} answer${replacements.length === 1 ? '' : 's'} already exist in ${category.name}. Overwrite them?`)
+        : false
+      if (replacements.length > 0 && !overwrite) {
+        setBusy(false)
+        return
+      }
       const blobs: Array<{ id: string; blob: Blob }> = []
       const questions = validation.accepted.map(candidate => {
-        const imageId = candidate.kind === 'image' ? crypto.randomUUID() : undefined
+        const existing = overwrite ? existingByAnswer.get(candidate.answer.trim().toLocaleLowerCase()) : undefined
+        const imageId = candidate.kind === 'image' ? (existing?.imageId ?? crypto.randomUUID()) : undefined
         if (imageId && candidate.file) blobs.push({ id: imageId, blob: candidate.file })
-        return { id: crypto.randomUUID(), text: candidate.text, imageId, answer: candidate.answer.trim(), acceptedAnswers: candidate.acceptedAnswers }
+        return { id: existing?.id ?? crypto.randomUUID(), text: candidate.text, imageId, answer: candidate.answer.trim(), acceptedAnswers: candidate.acceptedAnswers }
       })
       await onCommit(questions, blobs)
       setCandidates([])
@@ -58,20 +68,22 @@ export function BulkImport({ category, onCommit }: BulkImportProps) {
 
   return <section className="bulk-import panel">
     <div className="bulk-import-actions">
-      <label className="secondary file-button">Bulk add images<input type="file" accept="image/*" multiple onChange={event => { addImages(event.target.files); event.currentTarget.value = '' }} /></label>
+      <label className="secondary file-button">Add image folder<input aria-label="Bulk add images" type="file" accept="image/*" multiple {...({ webkitdirectory: '', directory: '' } as Record<string, string>)} onChange={event => { addImages(event.target.files); event.currentTarget.value = '' }} /></label>
+      <label className="secondary file-button">Add image files<input type="file" accept="image/*" multiple onChange={event => { addImages(event.target.files); event.currentTarget.value = '' }} /></label>
       <label className="secondary file-button">Import trivia CSV<input type="file" accept=".csv,text/csv" onChange={event => { void addTrivia(event.target.files?.[0]); event.currentTarget.value = '' }} /></label>
     </div>
     {candidates.length > 0 && <div className="bulk-review">
       <div className="bulk-review-head"><strong>Review import</strong><span role="status">{validation.accepted.length} ready · {validation.rejected.length} rejected · {validation.remaining} spaces left</span></div>
-      {candidates.map((candidate, index) => {
+      <p className="bulk-review-note">Folder uploads include nested files. Rename files to the answer you want displayed; numeric prefixes and punctuation are cleaned up automatically.</p>
+      <div className="bulk-review-list">{candidates.map((candidate, index) => {
         const rejected = validation.rejected.find(item => item.key === candidate.key)
-        return <div className={`bulk-row${rejected ? ' invalid' : ''}`} key={candidate.key}>
+        return <article className={`bulk-row${rejected ? ' invalid' : ''}`} key={candidate.key}>
           {candidate.file && <img src={previews.get(candidate.key)} alt={`Preview for ${candidate.answer || `item ${index + 1}`}`} />}
           <label>Answer for {candidate.answer || `item ${index + 1}`}<input value={candidate.answer} onChange={event => updateAnswer(candidate.key, event.target.value)} /></label>
           {rejected?.error && <span className="bulk-error">{rejected.error}</span>}
           <button type="button" className="danger" onClick={() => remove(candidate.key)}>Remove</button>
-        </div>
-      })}
+        </article>
+      })}</div>
       <div className="bulk-review-actions">
         <button type="button" className="secondary" onClick={() => { setCandidates([]); setError('') }}>Cancel import</button>
         <button type="button" disabled={busy || validation.accepted.length === 0} onClick={() => { void confirm() }}>{busy ? 'Saving…' : 'Confirm import'}</button>
