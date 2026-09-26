@@ -6,6 +6,7 @@ const targetRoot = path.join(sourceRoot, 'Nani Import Pack')
 const categoryFolders = fs.readdirSync(sourceRoot, { withFileTypes: true })
   .filter(entry => entry.isDirectory() && entry.name !== 'Nani Import Pack')
   .map(entry => entry.name)
+const triviaAllowed = new Set(['bible-characters'])
 
 function csv(value) {
   const text = String(value ?? '')
@@ -39,7 +40,14 @@ for (const folder of categoryFolders) {
   const headers = rows.shift()
   const filenameIndex = headers.indexOf('filename')
   const kindIndex = headers.indexOf('kind')
-  const cleaned = rows.map(row => {
+  const cleaned = rows.filter((row, rowIndex) => {
+    const answer = row[1] ?? ''
+    const kind = row[kindIndex] ?? ''
+    const isPlaceholder = /^.+ trivia \d+$/i.test(answer)
+    const imageRequired = !triviaAllowed.has(folder) && folder !== 'nba-logos'
+    if (folder === 'nba-logos' && rowIndex < 30) return kind === 'image'
+    return !isPlaceholder && (!imageRequired || kind === 'image')
+  }).map(row => {
     const filename = filenameIndex >= 0 ? row[filenameIndex] : ''
     const imageExists = Boolean(filename && fs.existsSync(path.join(sourceFolder, path.basename(filename))))
     if (!imageExists && filenameIndex >= 0) row[filenameIndex] = ''
@@ -54,5 +62,5 @@ for (const folder of categoryFolders) {
     if (filename) fs.copyFileSync(path.join(sourceFolder, path.basename(filename)), path.join(targetFolder, path.basename(filename)))
   }
 }
-fs.writeFileSync(path.join(targetRoot, 'README.md'), `# Nani Import Pack\n\nEach category folder is a self-contained import folder. Select one category folder in Nani using **Import question folder**.\n\nThe CSV is authoritative:\n- \`kind=image\` only when the referenced \`filename\` exists beside the CSV.\n- \`kind=trivia\` rows have no image filename and should use their question text.\n- Missing image references were removed rather than leaving broken image rows.\n\nThis layout avoids ambiguous multi-CSV folder selection while keeping each category portable.\n`)
+fs.writeFileSync(path.join(targetRoot, 'README.md'), `# Nani Import Pack\n\nEach category folder is a self-contained import folder. Select one category folder in Nani using **Import question folder**.\n\nThe CSV is authoritative:\n- \\`kind=image\\` only when the referenced \\`filename\\` exists beside the CSV.\n- Trivia is retained only for Bible Characters and explicitly text-based NBA logo extension questions.\n- Placeholder answers and image-less rows from image-led categories were removed.\n- Missing image references were removed rather than leaving broken image rows.\n\nCounts are intentionally less than 50 where verified images are not available; this pack does not invent questions or broken image rows.\n`)
 console.log(`Created ${categoryFolders.length} category import folders at ${targetRoot}`)
