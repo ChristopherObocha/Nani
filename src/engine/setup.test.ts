@@ -1,8 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { createConfiguredGame, prepareBoard, rebuildBlocks, validateQuestion, validateSetup } from './setup'
+import { createConfiguredGame, createTestRound, prepareBoard, rebuildBlocks, validateQuestion, validateSetup } from './setup'
 import { swapCells } from './board'
 
 describe('setup validation', () => {
+  it('creates the four-contestant 12-category test round with 50 questions each', () => {
+    const game = createTestRound()
+    expect(game.players.map(player => player.name)).toEqual(['Contestant 1', 'Contestant 2', 'Contestant 3', 'Contestant 4'])
+    expect(game.categories).toHaveLength(12)
+    expect(game.categories.map(category => category.name)).toEqual([
+      'Nollywood Stars', 'Fruits', 'Hollywood Celebrities', 'Afrobeats Musicians',
+      'Groceries', 'Household Appliances', 'NBA Logos', 'Car Brands',
+      'Bible Characters', 'The Office (US)', 'NBA Stars', 'Premier League Logos',
+    ])
+    expect(game.categories.every(category => category.active && category.questions.length === 50)).toBe(true)
+    expect(game.players.every(player => game.categories.filter(category => category.ownerId === player.id).length === 3)).toBe(true)
+  })
+
   it('supports a three-player rehearsal and 13 players with three active categories each', () => {
     expect(createConfiguredGame(['Ada', 'Bo', 'Cy'], 2).players).toHaveLength(3)
     const large = createConfiguredGame(Array.from({ length: 13 }, (_, i) => `Player ${i + 1}`), 3)

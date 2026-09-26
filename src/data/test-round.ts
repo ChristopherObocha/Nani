@@ -1,0 +1,42 @@
+import type { Question } from '../engine/types'
+
+export const TEST_ROUND_CATEGORIES = [
+  { owner: 'Contestant 1', name: 'Nollywood Stars' },
+  { owner: 'Contestant 1', name: 'Fruits' },
+  { owner: 'Contestant 1', name: 'Hollywood Celebrities' },
+  { owner: 'Contestant 2', name: 'Afrobeats Musicians' },
+  { owner: 'Contestant 2', name: 'Groceries' },
+  { owner: 'Contestant 2', name: 'Household Appliances' },
+  { owner: 'Contestant 3', name: 'NBA Logos' },
+  { owner: 'Contestant 3', name: 'Car Brands' },
+  { owner: 'Contestant 3', name: 'Bible Characters' },
+  { owner: 'Contestant 4', name: 'The Office (US)' },
+  { owner: 'Contestant 4', name: 'NBA Stars' },
+  { owner: 'Contestant 4', name: 'Premier League Logos' },
+] as const
+
+const seedAnswers: Record<string, string[]> = {
+  'Nollywood Stars': ['Genevieve Nnaji', 'Funke Akindele', 'Ramsey Nouah', 'Richard Mofe-Damijo', 'Mercy Johnson', 'Omotola Jalade-Ekeinde', 'Ini Edo', 'Tonto Dikeh', 'Kate Henshaw', 'Jim Iyke', 'Yul Edochie', 'Osita Iheme'],
+  Fruits: ['Apple', 'Banana', 'Orange', 'Mango', 'Pineapple', 'Watermelon', 'Strawberry', 'Blueberry', 'Raspberry', 'Blackberry', 'Grape', 'Pear', 'Peach', 'Plum', 'Cherry', 'Apricot', 'Nectarine', 'Papaya', 'Guava', 'Kiwi', 'Lemon', 'Lime', 'Grapefruit', 'Coconut', 'Avocado', 'Pomegranate', 'Passion fruit', 'Dragon fruit', 'Fig', 'Date', 'Cranberry', 'Gooseberry', 'Tangerine', 'Clementine', 'Jackfruit', 'Lychee', 'Persimmon', 'Starfruit', 'Durian', 'Rambutan', 'Soursop', 'Kumquat', 'Mulberry', 'Cantaloupe', 'Honeydew', 'Plantain', 'Cucumber', 'Tomato', 'Olive', 'Elderberry'],
+  'Hollywood Celebrities': ['Tom Hanks', 'Meryl Streep', 'Denzel Washington', 'Leonardo DiCaprio', 'Viola Davis', 'Brad Pitt', 'Angelina Jolie', 'Jennifer Lawrence', 'Will Smith', 'Zendaya', 'Robert Downey Jr.', 'Emma Stone', 'Keanu Reeves', 'Sandra Bullock', 'Morgan Freeman', 'Julia Roberts', 'Chris Hemsworth', 'Margot Robbie', 'Samuel L. Jackson', 'Cate Blanchett'],
+  'Afrobeats Musicians': ['Burna Boy', 'Wizkid', 'Davido', 'Tems', 'Tiwa Savage', 'Yemi Alade', 'Rema', 'Asake', 'Fireboy DML', 'Olamide', 'Adekunle Gold', 'Mr Eazi', 'Kizz Daniel', 'Tekno', 'P-Square', '2Baba', 'Flavour', 'Phyno', 'Joeboy', 'CKay'],
+  Groceries: ['Bread', 'Milk', 'Eggs', 'Rice', 'Pasta', 'Flour', 'Sugar', 'Salt', 'Cooking oil', 'Butter', 'Cheese', 'Yogurt', 'Cereal', 'Coffee', 'Tea', 'Tomato sauce', 'Baked beans', 'Tinned tuna', 'Peanut butter', 'Jam', 'Honey', 'Biscuits', 'Potato crisps', 'Frozen peas', 'Chicken', 'Beef', 'Sausages', 'Bacon', 'Fish fingers', 'Toilet paper', 'Paper towels', 'Dish soap', 'Laundry detergent', 'Shampoo', 'Toothpaste', 'Bottled water', 'Orange juice', 'Chocolate', 'Popcorn', 'Canned soup', 'Stock cubes', 'Ketchup', 'Mayonnaise', 'Mustard', 'Vinegar', 'Spices', 'Coconut milk', 'Noodles', 'Oats', 'Lentils'],
+  'Household Appliances': ['Refrigerator', 'Freezer', 'Microwave', 'Oven', 'Toaster', 'Kettle', 'Coffee maker', 'Blender', 'Food processor', 'Dishwasher', 'Washing machine', 'Tumble dryer', 'Vacuum cleaner', 'Iron', 'Fan', 'Air conditioner', 'Heater', 'Hair dryer', 'Hair straightener', 'Electric shaver', 'Television', 'Soundbar', 'Printer', 'Router', 'Smart speaker', 'Rice cooker', 'Slow cooker', 'Air fryer', 'Electric grill', 'Juicer', 'Hand mixer', 'Stand mixer', 'Sewing machine', 'Dehumidifier', 'Humidifier', 'Water purifier', 'Clock radio', 'Game console', 'Projector', 'Electric blanket', 'Robot vacuum', 'Sandwich maker', 'Waffle maker', 'Electric can opener', 'Ice maker', 'Chest freezer', 'Extractor fan', 'Garbage disposal', 'Doorbell camera', 'Security alarm'],
+  'NBA Logos': ['Atlanta Hawks', 'Boston Celtics', 'Brooklyn Nets', 'Charlotte Hornets', 'Chicago Bulls', 'Cleveland Cavaliers', 'Dallas Mavericks', 'Denver Nuggets', 'Detroit Pistons', 'Golden State Warriors', 'Houston Rockets', 'Indiana Pacers', 'Los Angeles Clippers', 'Los Angeles Lakers', 'Memphis Grizzlies', 'Miami Heat', 'Milwaukee Bucks', 'Minnesota Timberwolves', 'New Orleans Pelicans', 'New York Knicks', 'Oklahoma City Thunder', 'Orlando Magic', 'Philadelphia 76ers', 'Phoenix Suns', 'Portland Trail Blazers', 'Sacramento Kings', 'San Antonio Spurs', 'Toronto Raptors', 'Utah Jazz', 'Washington Wizards', 'Larry O’Brien Trophy', 'NBA Finals logo', 'NBA All-Star logo', 'NBA draft logo', 'ABA logo', 'Seattle SuperSonics logo', 'Vancouver Grizzlies logo', 'New Jersey Nets logo', 'Charlotte Bobcats logo', 'Washington Bullets logo', 'Baltimore Bullets logo', 'San Diego Clippers logo', 'Cincinnati Royals logo', 'Fort Wayne Pistons logo', 'Syracuse Nationals logo', 'Minneapolis Lakers logo', 'St. Louis Hawks logo', 'NBA 75 logo', 'NBA G League logo', 'WNBA logo'],
+  'Car Brands': ['Toyota', 'Ford', 'Volkswagen', 'BMW', 'Mercedes-Benz', 'Audi', 'Honda', 'Nissan', 'Hyundai', 'Kia', 'Chevrolet', 'Tesla', 'Volvo', 'Jaguar', 'Land Rover', 'Porsche', 'Ferrari', 'Lamborghini', 'Maserati', 'Bentley', 'Rolls-Royce', 'Aston Martin', 'McLaren', 'Bugatti', 'Peugeot', 'Renault', 'Citroën', 'Fiat', 'Alfa Romeo', 'Lexus', 'Subaru', 'Mazda', 'Mitsubishi', 'Suzuki', 'Dodge', 'Jeep', 'Chrysler', 'Cadillac', 'Buick', 'GMC', 'Lincoln', 'Rivian', 'Lucid', 'Polestar', 'Saab', 'Skoda', 'Seat', 'Mini', 'Genesis', 'Acura'],
+  'Bible Characters': ['Adam', 'Eve', 'Noah', 'Abraham', 'Sarah', 'Isaac', 'Rebecca', 'Jacob', 'Joseph', 'Moses', 'Aaron', 'Joshua', 'Rahab', 'Ruth', 'Samuel', 'David', 'Solomon', 'Esther', 'Job', 'Jonah', 'Daniel', 'Jeremiah', 'Isaiah', 'Elijah', 'Elisha', 'Nehemiah', 'John the Baptist', 'Mary', 'Joseph of Nazareth', 'Jesus', 'Peter', 'Paul', 'John the Apostle', 'James', 'Judas Iscariot', 'Martha', 'Mary Magdalene', 'Lazarus', 'Zacchaeus', 'Nicodemus', 'Samaritan woman', 'Stephen', 'Barnabas', 'Timothy', 'Titus', 'Priscilla', 'Aquila', 'Deborah', 'Gideon', 'Samson'],
+  'The Office (US)': ['Michael Scott', 'Dwight Schrute', 'Pam Beesly', 'Jim Halpert', 'Andy Bernard', 'Angela Martin', 'Kevin Malone', 'Oscar Martinez', 'Stanley Hudson', 'Phyllis Lapin-Vance', 'Meredith Palmer', 'Creed Bratton', 'Kelly Kapoor', 'Ryan Howard', 'Toby Flenderson', 'Darryl Philbin', 'Erin Hannon', 'Gabe Lewis', 'Holly Flax', 'Jan Levinson', 'David Wallace', 'Robert California', 'Nellie Bertram', 'Roy Anderson', 'Mose Schrute'],
+  'NBA Stars': ['Michael Jordan', 'LeBron James', 'Kobe Bryant', 'Stephen Curry', 'Shaquille O’Neal', 'Magic Johnson', 'Larry Bird', 'Kareem Abdul-Jabbar', 'Wilt Chamberlain', 'Bill Russell', 'Tim Duncan', 'Kevin Durant', 'Giannis Antetokounmpo', 'Nikola Jokić', 'Luka Dončić', 'Julius Erving', 'Hakeem Olajuwon', 'Charles Barkley', 'Allen Iverson', 'Dirk Nowitzki', 'Dwyane Wade', 'Chris Paul', 'James Harden', 'Russell Westbrook', 'Kawhi Leonard', 'Anthony Davis', 'Damian Lillard', 'Jayson Tatum', 'Joel Embiid', 'Jason Kidd', 'John Stockton', 'Patrick Ewing', 'Karl Malone', 'David Robinson', 'Scottie Pippen', 'Clyde Drexler', 'Steve Nash', 'Ray Allen', 'Kevin Garnett', 'Paul Pierce', 'Isiah Thomas', 'Oscar Robertson', 'Jerry West', 'Moses Malone', 'Bob Cousy', 'Elgin Baylor', 'George Gervin', 'Reggie Miller', 'Yao Ming', 'Vince Carter'],
+  'Premier League Logos': ['Arsenal', 'Aston Villa', 'Bournemouth', 'Brentford', 'Brighton & Hove Albion', 'Burnley', 'Chelsea', 'Crystal Palace', 'Everton', 'Fulham', 'Leeds United', 'Liverpool', 'Manchester City', 'Manchester United', 'Newcastle United', 'Nottingham Forest', 'Sunderland', 'Tottenham Hotspur', 'West Ham United', 'Wolverhampton Wanderers', 'Birmingham City', 'Blackburn Rovers', 'Bristol City', 'Cardiff City', 'Coventry City', 'Derby County', 'Hull City', 'Ipswich Town', 'Leicester City', 'Middlesbrough', 'Millwall', 'Norwich City', 'Oxford United', 'Portsmouth', 'Preston North End', 'Queens Park Rangers', 'Sheffield United', 'Sheffield Wednesday', 'Stoke City', 'Swansea City', 'Watford', 'West Bromwich Albion', 'Wigan Athletic', 'Barnsley', 'Bolton Wanderers', 'Charlton Athletic', 'Huddersfield Town', 'Reading', 'Rotherham United', 'Wycombe Wanderers'],
+}
+
+export function questionsForCategory(category: string): Question[] {
+  const answers = [...(seedAnswers[category] ?? [])]
+  while (answers.length < 50) answers.push(`${category} trivia ${String(answers.length + 1).padStart(2, '0')}`)
+  return answers.slice(0, 50).map((answer, index) => ({
+    id: `${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${index + 1}`,
+    text: `Identify this ${category.toLowerCase()} entry.`,
+    answer,
+    acceptedAnswers: [],
+  }))
+}

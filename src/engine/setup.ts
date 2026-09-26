@@ -1,5 +1,6 @@
 import { createFootprint, boardDimensions, shuffleBoard } from './board'
 import type { BoardCell, GameSnapshot, Question, TerritoryBlock } from './types'
+import { questionsForCategory, TEST_ROUND_CATEGORIES } from '../data/test-round'
 const COLORS=['#29d4c7','#ff6b6b','#ffd166','#78a7ff','#bf8cff','#7ed957','#ff9f43','#f368e0','#54a0ff','#00d2d3','#c8d6e5','#ff7f50','#a3cb38']
 const uid=()=>globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
 export function validateQuestion(q:Partial<Question>){return !!q.answer?.trim()&&!!(q.text?.trim()||q.imageId)}
@@ -11,6 +12,12 @@ export function createConfiguredGame(names:string[],active=1):GameSnapshot{
   const blocks=Object.fromEntries(board.filter(c=>c.playable).map(c=>[c.blockId!,{id:c.blockId!,ownerId:c.ownerId!,categoryId:c.categoryId!,cellIds:[c.id]}]))
   const {rows,cols}=boardDimensions(categories.length)
   return{id:uid(),name:'Floor game',config:{activeCategoriesPerPlayer:active,duelDurationMs:45000,passPenaltyMs:3000},players,categories,board,rows,cols,blocks,phase:'setup',locked:false,updatedAt:Date.now()}
+}
+export function createTestRound():GameSnapshot{
+  const game=createConfiguredGame(['Contestant 1','Contestant 2','Contestant 3','Contestant 4'],3)
+  const playerIds=Object.fromEntries(game.players.map(player=>[player.name,player.id]))
+  const categories=game.categories.map((category,index)=>{const definition=TEST_ROUND_CATEGORIES[index];return{...category,name:definition.name,ownerId:playerIds[definition.owner],active:true,questions:questionsForCategory(definition.name)}})
+  return {...game,name:'Nani quick test round',categories}
 }
 export function prepareBoard(game:GameSnapshot):GameSnapshot{
   const categories=game.categories.filter(c=>c.active),raw=createFootprint(categories.length);let index=0

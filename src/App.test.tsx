@@ -4,6 +4,14 @@ import userEvent from '@testing-library/user-event'
 import App from './App'
 
 describe('host workflow', () => {
+  it('boots the four-contestant quick test round', async () => {
+    const user = userEvent.setup(); render(<App />)
+    await user.click(screen.getByRole('button', { name: /new test round/i }))
+    expect(screen.getByDisplayValue('Nollywood Stars')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Contestant 4')).toBeInTheDocument()
+    expect(screen.getAllByText(/Question 50/)).toHaveLength(12)
+  })
+
   it('creates a practice game, edits private content, locks the board, and starts a duel', async () => {
     const user=userEvent.setup(); render(<App />)
     await user.click(screen.getByRole('button',{name:/new game/i}))

@@ -72,7 +72,7 @@ export function parseTriviaCsv(csv: string): ImportCandidate[] {
     return [rejectedCandidate('row-1', 'CSV must include question and answer headers')]
   }
 
-  return parsed.rows.slice(1).map((values, index) => {
+  return parsed.rows.slice(1).map((values, index): ImportCandidate => {
     const answer = values[answerIndex]?.trim() ?? ''
     const acceptedAnswers = acceptedIndex < 0
       ? []
