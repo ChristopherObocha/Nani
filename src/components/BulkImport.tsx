@@ -9,7 +9,7 @@ export interface BulkImportProps {
 }
 
 function candidateFromImage(file: File, index: number): ImportCandidate {
-  return { key: `image-${index}-${file.name}`, kind: 'image', file, answer: normalizeFilenameAnswer(file.name), acceptedAnswers: [] }
+  return { key: `image-${index}-${file.name}`, kind: 'image', file, filename: file.webkitRelativePath || file.name, answer: normalizeFilenameAnswer(file.name), acceptedAnswers: [] }
 }
 
 export function BulkImport({ category, onCommit }: BulkImportProps) {
@@ -32,6 +32,25 @@ export function BulkImport({ category, onCommit }: BulkImportProps) {
     setError('')
     const text = await file.text()
     setCandidates(previous => [...previous, ...parseTriviaCsv(text).map((candidate, index) => ({ ...candidate, key: `${candidate.key}-${previous.length + index}` }))])
+  }
+
+  const addFolder = async (files: FileList | null) => {
+    if (!files) return
+    const allFiles = Array.from(files)
+    const csvFile = allFiles.find(file => file.name.toLowerCase() === 'questions.csv' || file.name.toLowerCase().endsWith('.csv'))
+    if (!csvFile) { setError('Choose a folder containing a questions.csv file and its images'); return }
+    const images = allFiles.filter(file => file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name))
+    const byPath = new Map(images.flatMap(file => [[file.webkitRelativePath, file] as const, [file.name, file] as const]))
+    const text = await csvFile.text()
+    const folderCandidates = parseTriviaCsv(text).map((candidate, index) => {
+      if (!candidate.filename) return { ...candidate, key: `folder-${index}-${candidate.key}` }
+      const file = byPath.get(candidate.filename) ?? images.find(item => item.name === candidate.filename || item.webkitRelativePath.endsWith(`/${candidate.filename}`))
+      return file
+        ? { ...candidate, key: `folder-${index}-${candidate.key}`, kind: 'image' as const, file }
+        : { ...candidate, key: `folder-${index}-${candidate.key}`, error: `Image file not found: ${candidate.filename}` }
+    })
+    setError('')
+    setCandidates(previous => [...previous, ...folderCandidates])
   }
 
   const updateAnswer = (key: string, answer: string) => setCandidates(previous => previous.map(candidate => candidate.key === key ? { ...candidate, answer } : candidate))
@@ -69,6 +88,7 @@ export function BulkImport({ category, onCommit }: BulkImportProps) {
   return <section className="bulk-import panel">
     <div className="bulk-import-actions">
       <label className="secondary file-button">Add image folder<input aria-label="Bulk add images" type="file" accept="image/*" multiple {...({ webkitdirectory: '', directory: '' } as Record<string, string>)} onChange={event => { addImages(event.target.files); event.currentTarget.value = '' }} /></label>
+      <label className="secondary file-button">Import question folder<input aria-label="Import question folder" type="file" multiple {...({ webkitdirectory: '', directory: '' } as Record<string, string>)} onChange={event => { void addFolder(event.target.files); event.currentTarget.value = '' }} /></label>
       <label className="secondary file-button">Add image files<input type="file" accept="image/*" multiple onChange={event => { addImages(event.target.files); event.currentTarget.value = '' }} /></label>
       <label className="secondary file-button">Import trivia CSV<input type="file" accept=".csv,text/csv" onChange={event => { void addTrivia(event.target.files?.[0]); event.currentTarget.value = '' }} /></label>
     </div>

@@ -6,6 +6,7 @@ export interface ImportCandidate {
   key: string
   kind: ImportKind
   file?: File
+  filename?: string
   text?: string
   answer: string
   acceptedAnswers: string[]

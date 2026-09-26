@@ -68,6 +68,7 @@ export function parseTriviaCsv(csv: string): ImportCandidate[] {
   const questionIndex = headers.indexOf('question')
   const answerIndex = headers.indexOf('answer')
   const acceptedIndex = headers.indexOf('acceptedAnswers')
+  const filenameIndex = headers.indexOf('filename')
   if (questionIndex < 0 || answerIndex < 0) {
     return [rejectedCandidate('row-1', 'CSV must include question and answer headers')]
   }
@@ -83,6 +84,7 @@ export function parseTriviaCsv(csv: string): ImportCandidate[] {
       text: values[questionIndex]?.trim() ?? '',
       answer,
       acceptedAnswers,
+      filename: filenameIndex < 0 ? undefined : values[filenameIndex]?.trim() || undefined,
     }
   }).filter(candidate => candidate.text || candidate.answer || candidate.error)
 }
