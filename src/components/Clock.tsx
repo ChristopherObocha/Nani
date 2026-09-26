@@ -1,0 +1,1 @@
+export function Clock({ms,active}:{ms:number;active?:boolean}){const seconds=Math.max(0,Math.ceil(ms/1000));return <span className={`clock ${active?'active':''}`} aria-label={`${seconds} seconds`}>{seconds}</span>}
