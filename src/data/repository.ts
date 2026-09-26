@@ -9,6 +9,26 @@ export const deleteSession=(id:string)=>transact('sessions','readwrite',s=>s.del
 interface StoredImage { data:ArrayBuffer; type:string }
 function readBlob(blob:Blob){return new Promise<ArrayBuffer>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result as ArrayBuffer);reader.onerror=()=>reject(reader.error);reader.readAsArrayBuffer(blob)})}
 export async function saveImage(id:string,blob:Blob){const data=await readBlob(blob);return transact('images','readwrite',s=>s.put({data,type:blob.type} satisfies StoredImage,id))}
+export async function saveImagesBatch(items:Array<{id:string;blob:Blob}>):Promise<void>{
+  const stored: Array<{id:string;value:StoredImage}> = []
+  for(const item of items){
+    if(!(item.blob instanceof Blob))throw new Error(`Failed to save image ${item.id}: invalid blob`)
+    try{stored.push({id:item.id,value:{data:await readBlob(item.blob),type:item.blob.type}})}catch(error){throw new Error(`Failed to save image ${item.id}`,{cause:error})}
+  }
+  const db=await open()
+  await new Promise<void>((resolve,reject)=>{
+    const tx=db.transaction('images','readwrite')
+    let settled=false
+    const fail=(error:unknown)=>{if(!settled){settled=true;reject(error)}}
+    for(const item of stored){
+      const request=tx.objectStore('images').put(item.value,item.id)
+      request.onerror=()=>fail(new Error(`Failed to save image ${item.id}`,{cause:request.error}))
+    }
+    tx.oncomplete=()=>{if(!settled){settled=true;resolve()}}
+    tx.onerror=()=>fail(new Error('Failed to save image batch',{cause:tx.error}))
+    tx.onabort=()=>fail(new Error('Image batch was aborted',{cause:tx.error}))
+  }).finally(()=>db.close())
+}
 export async function loadImage(id:string){const stored=await transact<StoredImage|undefined>('images','readonly',s=>s.get(id));return stored?new Blob([stored.data],{type:stored.type}):undefined}
 export function recoverSession(game:GameSnapshot):GameSnapshot{
   if(!game.duel)return game
