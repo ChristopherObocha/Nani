@@ -31,10 +31,12 @@ export async function saveImagesBatch(items:Array<{id:string;blob:Blob}>):Promis
 }
 export async function loadImage(id:string){const stored=await transact<StoredImage|undefined>('images','readonly',s=>s.get(id));return stored?new Blob([stored.data],{type:stored.type}):undefined}
 export function recoverSession(game:GameSnapshot):GameSnapshot{
+  game={...game,randomiser:undefined}
   if(!game.duel)return game
   const stored=game.duel as GameSnapshot['duel'] & {categoryId?:string}
   const categoryId=stored.categoryId??game.board.find(c=>c.id===stored.defenderCellId)?.categoryId
   if(!categoryId)return game
   const duel={...stored,categoryId}
+  if(game.phase==='countdown')return {...game,phase:'duel-ready',duel:{...duel,running:false,startedAt:undefined,countdownEndsAt:undefined}}
   return game.phase==='duel'?{...game,duel:{...duel,running:false,startedAt:undefined}}:{...game,duel}
 }

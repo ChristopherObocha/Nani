@@ -34,6 +34,6 @@ export function validateSetup(s:GameSnapshot):string[]{
   const issues:string[]=[]
   if(s.players.length<2)issues.push('Add at least two contestants')
   for(const p of s.players){const active=s.categories.filter(c=>c.ownerId===p.id&&c.active);if(active.length!==s.config.activeCategoriesPerPlayer)issues.push(`${p.name} needs ${s.config.activeCategoriesPerPlayer} active categories`)}
-  for(const c of s.categories){if(!c.name.trim())issues.push('Every category needs a name');if(c.questions.length>50)issues.push(`${c.name} exceeds the 50 question cap`);if(c.questions.some(q=>!validateQuestion(q)))issues.push(`${c.name} has an incomplete question`)}
+  for(const c of s.categories){if(!c.name.trim())issues.push('Every category needs a name');if(c.active&&!c.questions.length)issues.push(`${c.name} needs at least one question`);if(c.questions.length>50)issues.push(`${c.name} exceeds the 50 question cap`);if(c.questions.some(q=>!validateQuestion(q)))issues.push(`${c.name} has an incomplete question`)}
   return issues
 }
